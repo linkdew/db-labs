@@ -1,0 +1,30 @@
+version: '3'
+services:
+  rc-postgres:
+    image: "postgres"
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_PASSWORD: password
+
+  rc-redis:
+    container_name: rc-redis
+    image: redis:5
+    ports:
+      - "6379:6379"
+    restart: always
+
+  redis-cache:
+    build: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "rc-postgres"
+      - "rc-redis"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://rc-postgres:5432/db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
